@@ -244,17 +244,15 @@ def getEmoji(weatherID):
 	
 if __name__ == '__main__':
 
-#     bot.polling(none_stop=True)
+	
+	while True:
 
-     while True:
+		try:
 
-         try:
+			bot.polling(none_stop=True, timeout=60)
 
-             bot.polling(none_stop=True, timeout=60)
+		except Exception as e:
 
-         except Exception as e:
+			logger.error(e)
 
-             logger.error(e)
-
-             time.sleep(15)
-
+			time.sleep(15)
