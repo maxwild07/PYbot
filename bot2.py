@@ -247,7 +247,7 @@ if __name__ == '__main__':
 
 		try:
 
-			bot.polling(none_stop=True)
+			bot.polling(none_stop=True, timeout=60)
 
 	# ConnectionError and ReadTimeout because of possible timout of the requests library
 
