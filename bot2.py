@@ -51,7 +51,7 @@ def tom_weather(message):
 	description = data['forecast']['forecastday'][1]['day']['condition']['text']
 	temp_min = data['forecast']['forecastday'][1]['day']['mintemp_c']
 	temp_max = data['forecast']['forecastday'][1]['day']['maxtemp_c'] 
-	weatherID = data['current']['condition']['code']
+	weatherID = data['forecast']['forecastday'][1]['day']['condition']['code']
 	precipitation = data['forecast']['forecastday'][1]['day']['totalprecip_mm']
 	emoji = getEmoji(weatherID) 	
 	bot.send_message(message.chat.id, "Завтра у нас " + description + emoji + 
@@ -243,20 +243,17 @@ def getEmoji(weatherID):
 
 	
 if __name__ == '__main__':
-	while True:
 
-		try:
+	 bot.polling(none_stop=True)
 
-			bot.polling(none_stop=True, timeout=60)
+	# while True:
 
-	# ConnectionError and ReadTimeout because of possible timout of the requests library
+	# 	try:
 
-	# TypeError for moviepy errors
+	# 		bot.polling(none_stop=True, timeout=60)
 
-	# maybe there are others, therefore Exception
+	# 	except Exception as e:
 
-		except Exception as e:
+	# 		logger.error(e)
 
-			logger.error(e)
-
-			time.sleep(15)
+	# 		time.sleep(15)
