@@ -1,10 +1,9 @@
-
-
 # -*- coding: utf-8 -*-
 
 import requests
 import telebot
 from telebot import types
+from time import sleep
 
 TOKEN = '552505551:AAHEYUk1x8uXX9HWTMG-KY9PBevdj1OJeZA'
 
@@ -242,12 +241,22 @@ def getEmoji(weatherID):
 	else:
 		return "🌆"   		
 
-# http://api.openweathermap.org/data/2.5/forecast?id=711660&APPID=ab7f60ac527062152b8ed51167e9ef12&lang=ru&units=metric
-
-# https://api.apixu.com/v1/current.json?key=4f177201ebb542d5a54184431180104&q=Kiev&lang=ru
-# https://api.apixu.com/v1/forecast.json?key=4f177201ebb542d5a54184431180104&q=Kiev&lang=ru&days=2
-# https://newsapi.org/v2/top-headlines?country=ru&apiKey=08d40645632745818755098fdfbec6a8&pagesize=5&category=technology
-# https://newsapi.org/v2/everything?q=о&language=ru&apiKey=08d40645632745818755098fdfbec6a8&sortBy=popularity
 	
 if __name__ == '__main__':
-	 bot.polling(none_stop=True)
+	while True:
+
+		try:
+
+			bot.polling(none_stop=True)
+
+	# ConnectionError and ReadTimeout because of possible timout of the requests library
+
+	# TypeError for moviepy errors
+
+	# maybe there are others, therefore Exception
+
+		except Exception as e:
+
+			logger.error(e)
+
+			time.sleep(15)
