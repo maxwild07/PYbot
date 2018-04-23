@@ -5,7 +5,7 @@ import telebot
 from telebot import types
 from time import sleep
 
-TOKEN = '552505551:AAHEYUk1x8uXX9HWTMG-KY9PBevdj1OJeZA'
+TOKEN = '567705667:AAG4wwnwLJTp8mpJnT-j7w7K6MIf2IN1cC4'
 
 MONEY = 0 # exchange rates
 
@@ -203,10 +203,10 @@ def get_num(message):
 	if MONEY == 0:
 		return
 	if CONV_DIR == 0:		
-		result = int(message.text) * float(MONEY)
+		result = float(message.text) * float(MONEY)
 	else: 
-		result = int(message.text) / float(MONEY)	
-	bot.send_message(message.chat.id, 'Вы получите '+ str(result)[:5])
+		result = float(message.text) / float(MONEY)	
+	bot.send_message(message.chat.id, 'Вы получите '+ str(result)[:10])
 	MONEY = 0
 	start(message)	
 
