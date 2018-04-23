@@ -2,11 +2,10 @@
 
 import requests
 import telebot
-import datetime
 from telebot import types
 from time import sleep
 
-TOKEN = '567705667:AAG4wwnwLJTp8mpJnT-j7w7K6MIf2IN1cC4'
+TOKEN = '552505551:AAHEYUk1x8uXX9HWTMG-KY9PBevdj1OJeZA'
 
 MONEY = 0 # exchange rates
 
@@ -20,48 +19,63 @@ def first_start(message):
 	bot.send_message(message.chat.id, "Доброго времени суток, {}, я могу помочь Вам с решением ежедневных задач".format(message.from_user.first_name))
 	start(message)
 
-def start(message):
+def start(message): 
 	keyboard = types.ReplyKeyboardMarkup()
 	keyboard.add(types.KeyboardButton('🌦Погода'))
 	keyboard.add(types.KeyboardButton('💲Курс Валют'))
 	keyboard.add(types.KeyboardButton('📰Новости'))
 	bot.send_message(message.chat.id, 'Выберите нужную функцию',reply_markup=keyboard)
 
-@bot.message_handler(regexp="Борисполь")
+@bot.message_handler(regexp="На завтра")
 def tom_weather(message):
-	response = requests.get("https://api.apixu.com/v1/forecast.json?key=4f177201ebb542d5a54184431180104&q=Boryspil&lang=ru&days=7")
+	response = requests.get("https://api.apixu.com/v1/forecast.json?key=4f177201ebb542d5a54184431180104&q=Kiev&lang=ru&days=2")
 	data = response.json()
-	i = 1
-	while i <= 6:
-		forecast(message,data,i)
-		i += 1
+	description = data['forecast']['forecastday'][1]['day']['condition']['text']
+	temp_min = data['forecast']['forecastday'][1]['day']['mintemp_c']
+	temp_max = data['forecast']['forecastday'][1]['day']['maxtemp_c'] 
+	weatherID = data['forecast']['forecastday'][1]['day']['condition']['code']
+	precipitation = data['forecast']['forecastday'][1]['day']['totalprecip_mm']
+	emoji = getEmoji(weatherID) 	
+	bot.send_message(message.chat.id, "Завтра в Борисполе " + description + emoji + 
+									"\nТемпература составит " +str(int(temp_min))+"..."+str(int(temp_max))+"℃."+
+									"\nОсадки: " + str(int(precipitation)) + " мм.")
 	start(message)	
 
 
 @bot.message_handler(regexp="Погода")
 def weather(message): 
-	response = requests.get("https://api.apixu.com/v1/forecast.json?key=4f177201ebb542d5a54184431180104&q=Boryspil&lang=ru&days=2")
+	response = requests.get("https://api.apixu.com/v1/forecast.json?key=4f177201ebb542d5a54184431180104&q=Kiev&lang=ru&days=2")
 	data = response.json()
-	today_weather(message,data)
+	description = data['current']['condition']['text']
+	temp = data['current']['temp_c']
+	temp_min = data['forecast']['forecastday'][0]['day']['mintemp_c']
+	temp_max = data['forecast']['forecastday'][0]['day']['maxtemp_c']
+	temp_feel = data['current']['feelslike_c']
+	weatherID = data['current']['condition']['code']
+	precipitation = data['forecast']['forecastday'][0]['day']['totalprecip_mm']
+	emoji = getEmoji(weatherID)
 	keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
 	button_geo = types.KeyboardButton(text="Отправить местоположение📍", request_location=True)
-	keyboard.add(*[types.KeyboardButton(name) for name in ['📅Борисполь','↩Меню']])
+	keyboard.add(*[types.KeyboardButton(name) for name in ['На завтра','Меню']])
 	keyboard.add(button_geo)
-	bot.send_message(message.chat.id, "Выберите действие" ,reply_markup=keyboard)
+	bot.send_message(message.chat.id, "Сегодня в Борисполе " + description + emoji + 
+									"\nТемпература составит " +str(int(temp_min))+"..."+str(int(temp_max))+"℃."+
+									"\nСейчас "+str(int(temp)) + "℃, но ощущается как " + str(int(temp_feel))+"℃"+
+									"\nОсадки: " + str(int(precipitation)) + " мм.",reply_markup=keyboard)
 
 ########## exchange rates
 	
 @bot.message_handler(regexp="Курс Валют")
 def currency(message): 
 	keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-	keyboard.add(*[types.KeyboardButton(name) for name in ['＄', '€', '₽','Конвертировать','↩Меню']])
+	keyboard.add(*[types.KeyboardButton(name) for name in ['＄', '€', '₽','Конвертировать','Меню']])
 	bot.send_message(message.chat.id, 'Выберите действие',reply_markup=keyboard)
 
 @bot.message_handler(regexp="Конвертировать")
 def convert(message):
 	keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
 	keyboard.add(*[types.KeyboardButton(name) for name in ['Доллар в гривну', 'Евро в гривну', 'Рубль в гривну',
-													  'Гривну в доллар', 'Гривну в евро', 'Гривну в рубль','↩Меню']])
+													  'Гривну в доллар', 'Гривну в евро', 'Гривну в рубль','Меню']])
 	bot.send_message(message.chat.id, 'Выберите валюту',reply_markup=keyboard)
 
 
@@ -157,7 +171,7 @@ def news(message):
 	keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
 	keyboard.add(*[types.KeyboardButton(name) for name in ['Топ 5 🇺🇦', '📱Технологии']]) 
 	keyboard.add(types.KeyboardButton('🌐Мировые новости'))
-	keyboard.add(types.KeyboardButton('↩Меню'))
+	keyboard.add(types.KeyboardButton('Меню'))
 	bot.send_message(message.chat.id, 'Выберите тип новостей',reply_markup=keyboard)
 
 
@@ -192,7 +206,7 @@ def get_num(message):
 		result = float(message.text) * float(MONEY)
 	else: 
 		result = float(message.text) / float(MONEY)	
-	bot.send_message(message.chat.id, 'Вы получите '+ str(' '.join('{:,}'.format(round(result,2)).split(','))))
+	bot.send_message(message.chat.id, 'Вы получите '+ str(result)[:10])
 	MONEY = 0
 	start(message)	
 
@@ -200,17 +214,35 @@ def get_num(message):
 def locate(message):
 	latitude = message.location.latitude
 	longitude = message.location.longitude
-	response = requests.get("https://api.apixu.com/v1/forecast.json?key=4f177201ebb542d5a54184431180104&q={},{}&lang=ru&days=7"
+	response = requests.get("https://api.apixu.com/v1/forecast.json?key=4f177201ebb542d5a54184431180104&q={},{}&lang=ru&days=2"
 																						 .format(str(latitude),str(longitude)))
 	data = response.json()
 	description = data['current']['condition']['text']
 	data = response.json()
-	today_weather(message,data)
-	i = 1
-	while i <= 6:
-		forecast(message,data,i)
-		i += 1	
+	temp = data['current']['temp_c']
+	temp_min = data['forecast']['forecastday'][0]['day']['mintemp_c']
+	temp_max = data['forecast']['forecastday'][0]['day']['maxtemp_c']
+	temp_feel = data['current']['feelslike_c']
+	weatherID = data['current']['condition']['code']
+	precipitation = data['forecast']['forecastday'][0]['day']['totalprecip_mm']
+	location = data['location']['name'] + ", " + data['location']['region']
+	emoji = getEmoji(weatherID)
+	bot.send_message(message.chat.id, "Сегодня в "+ location + " " + description + emoji + 
+									"\nТемпература составит " +str(int(temp_min))+"..."+str(int(temp_max))+"℃."+
+									"\nСейчас "+str(int(temp)) + "℃, но ощущается как " + str(int(temp_feel))+"℃"+
+									"\nОсадки: " + str(int(precipitation)) + " мм.")
+
+	description = data['forecast']['forecastday'][1]['day']['condition']['text']
+	temp_min = data['forecast']['forecastday'][1]['day']['mintemp_c']
+	temp_max = data['forecast']['forecastday'][1]['day']['maxtemp_c'] 
+	weatherID = data['forecast']['forecastday'][1]['day']['condition']['code']
+	precipitation = data['forecast']['forecastday'][1]['day']['totalprecip_mm']
+	emoji = getEmoji(weatherID) 	
+	bot.send_message(message.chat.id, "Завтра в " + location + " " + description + emoji + 
+									"\nТемпература составит " +str(int(temp_min))+"..."+str(int(temp_max))+"℃."+
+									"\nОсадки: " + str(int(precipitation)) + " мм.")
 	start(message)
+
 	
 
 def get_money_info():
@@ -221,37 +253,6 @@ def show_money_request(message):
 	keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
 	keyboard.add('Меню')
 	bot.send_message(message.chat.id, 'Введите сумму перевода',reply_markup=keyboard)
-
-def forecast(message,data,day_num):
-	days = {0: u"Понедельник", 1: u"Вторник", 2: u"Среда", 3: u"Четверг", 4: u"Пятница", 5: u"Суббота", 6: u"Воскресенье"}
-	stamp = data['forecast']['forecastday'][day_num]['date_epoch']
-	date = datetime.date.fromtimestamp(stamp)
-	description = data['forecast']['forecastday'][day_num]['day']['condition']['text']
-	temp_min = data['forecast']['forecastday'][day_num]['day']['mintemp_c']
-	temp_max = data['forecast']['forecastday'][day_num]['day']['maxtemp_c'] 
-	weatherID = data['forecast']['forecastday'][day_num]['day']['condition']['code']
-	precipitation = data['forecast']['forecastday'][day_num]['day']['totalprecip_mm']
-	location = data['location']['name'] + ", " + data['location']['region']
-	emoji = getEmoji(weatherID) 	
-	bot.send_message(message.chat.id, days[datetime.date(date.year,date.month,date.day).weekday()] + "({})\n".format(date.strftime("%m-%d"))+ 
-									"В "+ location + " " + description + emoji + 
-									"\nТемпература составит " +str(int(temp_min))+"..."+str(int(temp_max))+"℃."+
-									"\nОсадки: " + str(int(precipitation)) + " мм.")
-
-def today_weather(message,data):
-	temp = data['current']['temp_c']
-	temp_min = data['forecast']['forecastday'][0]['day']['mintemp_c']
-	temp_max = data['forecast']['forecastday'][0]['day']['maxtemp_c']
-	temp_feel = data['current']['feelslike_c']
-	weatherID = data['forecast']['forecastday'][0]['day']['condition']['code']
-	description = data['forecast']['forecastday'][0]['day']['condition']['text']
-	precipitation = data['forecast']['forecastday'][0]['day']['totalprecip_mm']
-	location = data['location']['name'] + ", " + data['location']['region']
-	emoji = getEmoji(weatherID)
-	bot.send_message(message.chat.id, "Сегодня в "+ location + " " + description + emoji + 
-									"\nТемпература составит " +str(int(temp_min))+"..."+str(int(temp_max))+"℃."+
-									"\nСейчас "+str(int(temp)) + "℃, но ощущается как " + str(int(temp_feel))+"℃"+
-									"\nОсадки: " + str(int(precipitation)) + " мм.")
 
 def getEmoji(weatherID):
 	if weatherID:
