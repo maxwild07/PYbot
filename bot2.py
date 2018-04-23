@@ -6,7 +6,7 @@ import datetime
 from telebot import types
 from time import sleep
 
-TOKEN = '567705667:AAG4wwnwLJTp8mpJnT-j7w7K6MIf2IN1cC4'
+TOKEN = '552505551:AAHEYUk1x8uXX9HWTMG-KY9PBevdj1OJeZA'
 
 MONEY = 0 # exchange rates
 
