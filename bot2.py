@@ -17,7 +17,7 @@ bot = telebot.TeleBot(TOKEN)
 
 @bot.message_handler(commands=["start"])
 def first_start(message):
-	bot.send_message(message.chat.id, "Доброго времени суток, {}, я могу помочь Вам с решением ежедневных задач".format(message.from_user.first_name))
+	bot.send_message(message.chat.id, "{Hello, {}, я могу помочь Вам с решением ежедневных задач".format(message.from_user.first_name))
 	start(message)
 
 def start(message):
